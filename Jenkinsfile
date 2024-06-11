@@ -26,7 +26,7 @@ pipeline {
                 echo "username is $USERNAME"
 
                 sh 'echo $PASSWORD | sudo -S apt-get install npm'
-                sh 'echo $PASSWORD | sudo npm test'
+                sh 'echo $PASSWORD | sudo -S npm test'
 
                 }
             }
