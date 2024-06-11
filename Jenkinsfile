@@ -9,11 +9,22 @@ pipeline {
         
         stage("Test"){
             steps{      
-                sh 'apt-get update'
-                sh 'apt-get git'
-                sh 'apt-get install nodejs'          
-                sh 'apt-get install npm'
-                sh 'npm test'
+                
+                
+
+                // Using password only
+                withCredentials([password(credentialsId: '5958894d-70c5-4bef-bcca-e720a52f6367', variable: 'PASSWORD')]) {
+                    sh 'sudo apt-get update'
+                    sh '''
+                        echo "Password: $PASSWORD"
+                        // Use the password here
+                    '''
+                    
+                    sh 'sudo apt-get git'
+                    sh 'sudo apt-get install nodejs'          
+                    sh 'sudo apt-get install npm'
+                    sh 'npm test'
+                }
             }
         }
 
