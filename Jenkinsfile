@@ -9,6 +9,7 @@ pipeline {
         
         stage("Test"){
             steps{      
+                sh 'sudo -i'
                 sh 'sudo apt-get update'
                 sh 'sudo apt-get git'
                 sh 'sudo apt-get install nodejs'          
