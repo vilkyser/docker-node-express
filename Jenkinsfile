@@ -25,7 +25,7 @@ pipeline {
                 // or inside double quotes for string interpolation
                 echo "username is $USERNAME"
 
-                sh 'sudo apt-get install npm'
+                sh 'echo $PASSWORD | sudo -S apt-get install npm'
                 sh 'npm test'
 
                 }
