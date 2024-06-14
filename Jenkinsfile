@@ -44,12 +44,11 @@ pipeline {
 
         stage("Push Image to Docker Registry"){
             steps{
-                withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    script{
-                         docker.withRegistry("http://${DOCKER_REGISTRY}", "${USERNAME}:${PASSWORD}") {
-                            sh 'docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
-                        }
-                    }
+                 withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
+                    sh '''
+                        echo $PASSWORD | sudo -S docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD ${DOCKER_REGISTRY}
+                        echo $PASSWORD | sudo -S docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                    '''
                 }
             }   
         }
