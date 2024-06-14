@@ -44,16 +44,23 @@ pipeline {
 
         stage("Push Image to Docker Registry"){
             steps{
-                  withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                     withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
-                           sh '''
-                                echo $PASSWORD | sudo -S docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
-                                echo $REGISTRY_PASSWORD | sudo -S docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
-                                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                                docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                          '''
-                     }
+                //   withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                //      withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
+                //            sh '''
+                //                 echo $PASSWORD | sudo -S docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
+                //                 echo $REGISTRY_PASSWORD | sudo -S docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
+                //                 docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                //                 docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                //           '''
+                //      }
                     
+                // }
+                
+                withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withDockerRegistry([credentialsId: 'docker_cred_id', url: "http://docker.mcjimleather.com"]) {
+                        // Push the Docker image
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
+                    }
                 }
                 
             }   
