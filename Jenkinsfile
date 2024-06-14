@@ -29,7 +29,7 @@ pipeline {
 
         stage("Build and Create Docker Image"){
             steps{
-                sh 'docker build -t node-express-api:1.0 .'
+                sh 'echo $PASSWORD | sudo docker build -t node-express-api:1.0 .'
             }
         }
     }
