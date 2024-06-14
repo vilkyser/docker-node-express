@@ -1,5 +1,12 @@
 pipeline {
     agent any
+    
+    environment{
+        IMAGE_NAME = "node-express-api"
+        IMAGE_TAG = "1.1"
+        DOCKER_REGISTRY = "docker.mcjimleather.com:9000"
+    }
+
     stages {
         stage("Checkout"){
             steps{
@@ -13,7 +20,6 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | sudo -S apt-get update'
                     sh 'echo $PASSWORD | sudo -S apt-get install nodejs npm | echo Y'
-                    //sh 'echo $PASSWORD | sudo -S apt-get install -y docker.io'
                     sh 'echo $PASSWORD | sudo -S npm install -g mocha'
                     sh 'echo $PASSWORD | sudo -S npm test'
                 }
@@ -29,11 +35,17 @@ pipeline {
 
         stage("Build and Create Docker Image"){
             steps {
-                
+
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh 'echo $PASSWORD | sudo -S docker build -t node-express-api:1.0 .'
+                sh 'echo $PASSWORD | sudo -S docker build -t ${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.IMAGE_TAG} .'
                 }
             }
         }
+
+        // stage("Push Image to Docker Container"){
+        //     steps{
+                
+        //     }
+        // }
     }
 }
