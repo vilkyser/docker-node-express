@@ -8,7 +8,7 @@ pipeline {
         }
         
         stage("Test"){
-            steps{      
+            steps {      
                 
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | sudo -S apt-get update'
@@ -28,8 +28,11 @@ pipeline {
         }
 
         stage("Build and Create Docker Image"){
-            steps{
+            steps {
+                
+                withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                 sh 'echo $PASSWORD | sudo -S docker build -t node-express-api:1.0 .'
+                }
             }
         }
     }
