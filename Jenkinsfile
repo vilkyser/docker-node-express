@@ -3,7 +3,7 @@ pipeline {
     
     environment{
         IMAGE_NAME = "node-express-api"
-        IMAGE_TAG = "1.1"
+        IMAGE_TAG = "1.2"
         DOCKER_REGISTRY = "docker.mcjimleather.com:9000"
     }
 
@@ -42,10 +42,16 @@ pipeline {
             }
         }
 
-        // stage("Push Image to Docker Container"){
-        //     steps{
-                
-        //     }
-        // }
+        stage("Push Image to Docker Registry"){
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    script{
+                         docker.withRegistry("http://${DOCKER_REGISTRY}", "${USERNAME}:${PASSWORD}") {
+                            sh 'docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
+                        }
+                    }
+                }
+            }   
+        }
     }
 }
