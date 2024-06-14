@@ -37,13 +37,13 @@ pipeline {
             steps {
 
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                sh 'echo $PASSWORD | sudo -S docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .'
+                sh 'echo $PASSWORD | sudo -S docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
                 }
             }
         }
 
-        // stage("Push Image to Docker Registry"){
-        //     steps{
+         stage("Push Image to Docker Registry"){
+             steps{
         //         //   withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
         //         //      withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
         //         //            sh '''
@@ -56,14 +56,14 @@ pipeline {
                     
         //         // }
                 
-        //         withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-        //             withDockerRegistry([credentialsId: 'docker_cred_id', url: "http://docker.mcjimleather.com"]) {
-        //                 // Push the Docker image
-        //                 docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
-        //             }
-        //         }
+                withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    withDockerRegistry([credentialsId: 'docker_cred_id', url: "http://docker.mcjimleather.com:9000"]) {
+                        // Push the Docker image
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
+                    }
+                }
                 
-        //     }   
-        // }
+             }   
+         }
     }
 }
