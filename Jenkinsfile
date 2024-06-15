@@ -49,13 +49,11 @@ pipeline {
                     //         docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                     //     """
                     // }
-                    script {
-                        sh """
-                            echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
-                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                        """
-                    }
+                    
+                    sh 'docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD'
+                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} vilkyser/docker-nodejs:1.0'
+                    sh 'docker push vilkyser/docker-nodejs:1.0'
+                    sh 'docker logout'
                 }
             }
         }
