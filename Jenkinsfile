@@ -3,10 +3,10 @@ pipeline {
     
     environment {
         IMAGE_NAME = "node-express-api"
-        IMAGE_TAG = "1.4"
+        IMAGE_TAG = "1.0"
         DOCKER_REGISTRY = "vilkyser/docker-nodejs"
     }
-    //DOCKER_REGISTRY = "localhost:9000"
+    
     stages {
         stage("Checkout") {
             steps {
