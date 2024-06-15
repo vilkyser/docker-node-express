@@ -4,8 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
-        DOCKER_REGISTRY = "jenkins-apps/${IMAGE_NAME}" // Update with your Docker repository URL
-        DOCKER_HOST = "tcp://192.168.1.89:9000" // Update with your Docker host IP where Portainer is running
+        DOCKER_REGISTRY = "jenkins-apps/${IMAGE_NAME}"
+        DOCKER_HOST = "tcp://192.168.1.89:9000"
     }
 
     stages {
@@ -45,8 +45,8 @@ pipeline {
                     '''
                     writeFile file: 'Dockerfile', text: dockerfile
                     
-                    // Build Docker image using standard Docker Pipeline plugin
-                    docker.build("${DOCKER_REGISTRY}:${IMAGE_TAG}", "-f Dockerfile .")
+                    // Build Docker image using shell commands
+                    sh "docker build -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
                 }
             }
         }
@@ -54,8 +54,9 @@ pipeline {
         stage("Push Image to Docker Registry") {
             steps {
                 script {
-                    docker.withRegistry('http://${DOCKER_HOST}', 'docker_admin_cred') {
-                        docker.image("${DOCKER_REGISTRY}:${IMAGE_TAG}").push()
+                    withCredentials([usernamePassword(credentialsId: 'docker_admin_cred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "docker login -u $USERNAME -p $PASSWORD ${DOCKER_HOST}"
+                        sh "docker push ${DOCKER_REGISTRY}:${IMAGE_TAG}"
                     }
                 }
             }
