@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     environment {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
@@ -14,10 +14,9 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage("Test") {
-            steps {      
-                // Your existing test steps here
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | sudo -S apt-get update'
                     sh 'echo $PASSWORD | sudo -S apt-get install nodejs npm -y'
@@ -46,11 +45,8 @@ pipeline {
                     '''
                     writeFile file: 'Dockerfile', text: dockerfile
                     
-                    // Build Docker image using YADP
-                    yadpBuildImage registryCredentialsId: 'docker_cred_id',
-                                  dockerHost: "${DOCKER_HOST}",
-                                  imageName: "${DOCKER_REGISTRY}:${IMAGE_TAG}",
-                                  dockerfilePath: 'Dockerfile'
+                    // Build Docker image using standard Docker Pipeline plugin
+                    docker.build("${DOCKER_REGISTRY}:${IMAGE_TAG}", "-f Dockerfile .")
                 }
             }
         }
@@ -58,10 +54,9 @@ pipeline {
         stage("Push Image to Docker Registry") {
             steps {
                 script {
-                    // Push Docker image to registry using YADP
-                    yadpPushImage registryCredentialsId: 'docker_admin_cred',
-                                 dockerHost: "${DOCKER_HOST}",
-                                 imageName: "${DOCKER_REGISTRY}:${IMAGE_TAG}"
+                    docker.withRegistry('http://${DOCKER_HOST}', 'docker_admin_cred') {
+                        docker.image("${DOCKER_REGISTRY}:${IMAGE_TAG}").push()
+                    }
                 }
             }
         }
