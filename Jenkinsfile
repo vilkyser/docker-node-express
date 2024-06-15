@@ -4,9 +4,9 @@ pipeline {
     environment {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
-        DOCKER_REGISTRY = "localhost:9000"
+        DOCKER_REGISTRY = "vilkyser/docker-nodejs"
     }
-
+    //DOCKER_REGISTRY = "localhost:9000"
     stages {
         stage("Checkout") {
             steps {
@@ -51,8 +51,8 @@ pipeline {
                     // }
                     
                     sh 'docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD'
-                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} vilkyser/docker-nodejs:1.0'
-                    sh 'docker push vilkyser/docker-nodejs:${IMAGE_TAG}'
+                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}:${IMAGE_TAG}'
+                    sh 'docker push ${DOCKER_REGISTRY}:${IMAGE_TAG}'
                     sh 'docker logout'
 
                 }
