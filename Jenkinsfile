@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
         DOCKER_REGISTRY = "jenkins-apps/${IMAGE_NAME}"
-        DOCKER_HOST = "tcp://192.168.1.89:9000"
+        DOCKER_HOST = "tcp://192.168.42.89:9000"
     }
 
     stages {
