@@ -52,8 +52,9 @@ pipeline {
                     
                     sh 'docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD'
                     sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} vilkyser/docker-nodejs:1.0'
-                    sh 'docker push vilkyser/docker-nodejs:1.0'
+                    sh 'docker push vilkyser/docker-nodejs:${IMAGE_TAG}'
                     sh 'docker logout'
+
                 }
             }
         }
