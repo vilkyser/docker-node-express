@@ -44,8 +44,11 @@ pipeline {
                         CMD ["npm", "start"]
                     '''
                     writeFile file: 'Dockerfile', text: dockerfile
-                    
-                    // Build Docker image using shell commands
+
+                    // Set Docker host environment variable
+                    sh "export DOCKER_HOST=${DOCKER_HOST}"
+
+                    // Build Docker image using standard Docker commands
                     sh "docker build -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
                 }
             }
@@ -55,7 +58,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker_admin_cred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "docker login -u $USERNAME -p $PASSWORD ${DOCKER_HOST}"
+                        sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin ${DOCKER_HOST}"
                         sh "docker push ${DOCKER_REGISTRY}:${IMAGE_TAG}"
                     }
                 }
