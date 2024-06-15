@@ -34,25 +34,9 @@ pipeline {
 
         stage("Build and Create Docker Image") {
             steps {
-                script {
-                    def dockerfile = '''
-                        FROM node:14-alpine
-                        WORKDIR /app
-                        COPY . .
-                        RUN npm install --production
-                        EXPOSE 3000
-                        CMD ["npm", "start"]
-                    '''
-                    writeFile file: 'Dockerfile', text: dockerfile
-
-                    // Set Docker host environment variable
-                    sh "export DOCKER_HOST=${DOCKER_HOST}"
-
-                    // Build Docker image using standard Docker commands
-                    //sh "docker build -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
-                    sh "docker buildx build --platform linux/amd64 -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
+                withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'echo $PASSWORD | sudo -S docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
                 }
-            }
         }
 
         stage("Push Image to Docker Registry") {
