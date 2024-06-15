@@ -49,7 +49,8 @@ pipeline {
                     sh "export DOCKER_HOST=${DOCKER_HOST}"
 
                     // Build Docker image using standard Docker commands
-                    sh "docker build -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
+                    //sh "docker build -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
+                    sh "docker buildx build --platform linux/amd64 -t ${DOCKER_REGISTRY}:${IMAGE_TAG} -f Dockerfile ."
                 }
             }
         }
