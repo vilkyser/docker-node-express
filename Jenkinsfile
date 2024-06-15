@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
-        DOCKER_REGISTRY = "docker.mcjimleather.com:9000"
+        DOCKER_REGISTRY = "localhost:9000"
     }
 
     stages {
