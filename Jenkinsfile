@@ -4,9 +4,10 @@ pipeline {
     environment {
         IMAGE_NAME = "node-express-api"
         IMAGE_TAG = "1.0"
-        DOCKER_REGISTRY = "vilkyser/docker-nodejs"
+        DOCKER_REGISTRY = "jenkins-apps/${IMAGE_NAME}" // Update with your Docker repository URL
+        DOCKER_HOST = "tcp://192.168.1.89:9000" // Update with your Docker host IP where Portainer is running
     }
-    //DOCKER_REGISTRY = "localhost:9000"
+
     stages {
         stage("Checkout") {
             steps {
@@ -16,6 +17,7 @@ pipeline {
         
         stage("Test") {
             steps {      
+                // Your existing test steps here
                 withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh 'echo $PASSWORD | sudo -S apt-get update'
                     sh 'echo $PASSWORD | sudo -S apt-get install nodejs npm -y'
@@ -33,28 +35,33 @@ pipeline {
 
         stage("Build and Create Docker Image") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins_cred_id', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | sudo -S docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
+                script {
+                    def dockerfile = '''
+                        FROM node:14-alpine
+                        WORKDIR /app
+                        COPY . .
+                        RUN npm install --production
+                        EXPOSE 3000
+                        CMD ["npm", "start"]
+                    '''
+                    writeFile file: 'Dockerfile', text: dockerfile
+                    
+                    // Build Docker image using YADP
+                    yadpBuildImage registryCredentialsId: 'docker_cred_id',
+                                  dockerHost: "${DOCKER_HOST}",
+                                  imageName: "${DOCKER_REGISTRY}:${IMAGE_TAG}",
+                                  dockerfilePath: 'Dockerfile'
                 }
             }
         }
 
         stage("Push Image to Docker Registry") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker_cred_id', usernameVariable: 'REGISTRY_USERNAME', passwordVariable: 'REGISTRY_PASSWORD')]) {
-                    // script {
-                    //     sh """
-                    //         echo $REGISTRY_PASSWORD | docker login -u $REGISTRY_USERNAME --password-stdin ${DOCKER_REGISTRY}
-                    //         docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                    //         docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                    //     """
-                    // }
-                    
-                    sh 'docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD'
-                    sh 'docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_REGISTRY}:${IMAGE_TAG}'
-                    sh 'docker push ${DOCKER_REGISTRY}:${IMAGE_TAG}'
-                    sh 'docker logout'
-
+                script {
+                    // Push Docker image to registry using YADP
+                    yadpPushImage registryCredentialsId: 'docker_admin_cred',
+                                 dockerHost: "${DOCKER_HOST}",
+                                 imageName: "${DOCKER_REGISTRY}:${IMAGE_TAG}"
                 }
             }
         }
